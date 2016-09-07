@@ -16,8 +16,7 @@ const emptyState = {
   authError: undefined,
   profile: undefined,
   isInitializing: undefined,
-  data: {},
-  snapshot: {}
+  data: {}
 }
 
 const initialState = fromJS(emptyState)
@@ -39,16 +38,11 @@ export default (state = initialState, action = {}) => {
         ? state.setIn(['data', ...pathArr], fromJS(data))
         : state.deleteIn(['data', ...pathArr])
 
-      retVal = (snapshot !== undefined)
-        ? retVal.setIn(['snapshot', ...pathArr], fromJS(snapshot))
-        : retVal.deleteIn(['snapshot', ...pathArr])
-
       return retVal
 
     case NO_VALUE:
       pathArr = pathToArr(path)
       retVal = state.setIn(['data', ...pathArr], fromJS({}))
-      retVal = retVal.setIn(['snapshot', ...pathArr], fromJS({}))
       return retVal
 
     case SET_PROFILE:
@@ -63,8 +57,7 @@ export default (state = initialState, action = {}) => {
         authError: null,
         profile: null,
         isLoading: false,
-        data: {},
-        snapshot: {}
+        data: {}
       })
 
     case LOGIN:
