@@ -15,6 +15,7 @@
     "watch": "npm run build -- --watch",
     "clean": "rimraf build",
     "prepublish": "npm run clean && npm run build",
+    "postinstall": "npm run clean && npm run build",
     "lint": "eslint source/**",
     "lint:fix": "npm run lint -- --fix",
     "test": "mocha -R spec --compilers js:babel-core/register ./test/setup.js ./test/**/*.spec.js",
