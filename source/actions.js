@@ -13,7 +13,18 @@ import {
 
 import { Promise } from 'es6-promise'
 
-import { capitalize } from 'lodash'
+import { capitalize, omit } from 'lodash'
+import jwtDecode from 'jwt-decode';
+
+const defaultJWTKeys = [
+  'iss',
+  'aud',
+  'auth_time',
+  'sub',
+  'iat',
+  'exp',
+  'firebase'
+];
 
 const getWatchPath = (event, path) => event + ':' + ((path.substring(0, 1) === '/') ? '' : '/') + path
 
@@ -435,6 +446,20 @@ export const login = (dispatch, firebase, credentials) => {
     .then((userData) => {
       // For email auth return uid (createUser is used for creating a profile)
       if (userData.email) return userData.uid
+      // For token auth, the user key doesn't exist. Instead, return the JWT.
+      if (method === 'signInWithCustomToken') {
+        // Extract the extra data in the JWT token and use it to create the
+        // user.
+        const { stsTokenManager: { accessToken } } = userData.toJSON()
+        const jwtData = jwtDecode(accessToken)
+        const extraJWTData = omit(jwtData, defaultJWTKeys)
+        return createUserProfile(
+          dispatch,
+          firebase,
+          user,
+          extraJWTData
+        )
+      }
       // Create profile when logging in with external provider
       const { user } = userData
       return createUserProfile(
