@@ -465,10 +465,11 @@ var login = exports.login = function login(dispatch, firebase, credentials) {
       var _userData$toJSON = userData.toJSON();
 
       var accessToken = _userData$toJSON.stsTokenManager.accessToken;
+      var uid = _userData$toJSON.uid;
 
       var jwtData = (0, _jwtDecode2.default)(accessToken);
       var extraJWTData = (0, _lodash.omit)(jwtData, defaultJWTKeys);
-      return createUserProfile(dispatch, firebase, user, extraJWTData);
+      return createUserProfile(dispatch, firebase, { uid: uid }, extraJWTData);
     }
     // Create profile when logging in with external provider
     var user = userData.user;
