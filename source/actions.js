@@ -450,13 +450,13 @@ export const login = (dispatch, firebase, credentials) => {
       if (method === 'signInWithCustomToken') {
         // Extract the extra data in the JWT token and use it to create the
         // user.
-        const { stsTokenManager: { accessToken } } = userData.toJSON()
+        const { stsTokenManager: { accessToken }, uid } = userData.toJSON()
         const jwtData = jwtDecode(accessToken)
         const extraJWTData = omit(jwtData, defaultJWTKeys)
         return createUserProfile(
           dispatch,
           firebase,
-          user,
+          { uid },
           extraJWTData
         )
       }
