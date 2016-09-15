@@ -17,13 +17,14 @@ import { capitalize, omit } from 'lodash'
 import jwtDecode from 'jwt-decode';
 
 const defaultJWTKeys = [
-  'iss',
   'aud',
   'auth_time',
-  'sub',
-  'iat',
   'exp',
-  'firebase'
+  'firebase',
+  'iat',
+  'iss',
+  'sub',
+  'user_id'
 ];
 
 const getWatchPath = (event, path) => event + ':' + ((path.substring(0, 1) === '/') ? '' : '/') + path
