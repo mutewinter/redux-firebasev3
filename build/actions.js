@@ -19,7 +19,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-var defaultJWTKeys = ['iss', 'aud', 'auth_time', 'sub', 'iat', 'exp', 'firebase'];
+var defaultJWTKeys = ['aud', 'auth_time', 'exp', 'firebase', 'iat', 'iss', 'sub', 'user_id'];
 
 var getWatchPath = function getWatchPath(event, path) {
   return event + ':' + (path.substring(0, 1) === '/' ? '' : '/') + path;
