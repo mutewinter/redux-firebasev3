@@ -14,7 +14,7 @@ import {
 import { Promise } from 'es6-promise'
 
 import { capitalize, omit } from 'lodash'
-import jwtDecode from 'jwt-decode';
+import jwtDecode from 'jwt-decode'
 
 const defaultJWTKeys = [
   'aud',
@@ -25,7 +25,7 @@ const defaultJWTKeys = [
   'iss',
   'sub',
   'user_id'
-];
+]
 
 const getWatchPath = (event, path) => event + ':' + ((path.substring(0, 1) === '/') ? '' : '/') + path
 
@@ -304,9 +304,9 @@ const dispatchLogin = (dispatch, auth) =>
  */
 const unWatchUserProfile = (firebase) => {
   const authUid = firebase._.authUid
-  const userProfile = firebase._.config.userProfile
+  const userProfilesPath = getUserProfilesPath(firebase, authUid)
   if (firebase._.profileWatch) {
-    firebase.database().ref().child(`${userProfile}/${authUid}`).off('value', firebase._.profileWatch)
+    firebase.database().ref().child(`${userProfilesPath}/${authUid}`).off('value', firebase._.profileWatch)
     firebase._.profileWatch = null
   }
 }
@@ -316,14 +316,15 @@ const unWatchUserProfile = (firebase) => {
  * @param {Function} dispatch - Action dispatch function
  * @param {Object} firebase - Internal firebase object
  */
-const watchUserProfile = (dispatch, firebase) => {
+const watchUserProfile = (dispatch, firebase, authData) => {
   const authUid = firebase._.authUid
-  const userProfile = firebase._.config.userProfile
+  const userProfilesPath = getUserProfilesPath(firebase)
+
   unWatchUserProfile(firebase)
-  if (firebase._.config.userProfile) {
+  if (userProfilesPath) {
     firebase._.profileWatch = firebase.database()
       .ref()
-      .child(`${userProfile}/${authUid}`)
+      .child(`${userProfilesPath}/${authUid}`)
       .on('value', snap => {
         dispatch({
           type: SET_PROFILE,
@@ -331,6 +332,15 @@ const watchUserProfile = (dispatch, firebase) => {
         })
       })
   }
+}
+
+/**
+ * @description Get the path to the user profiles.
+ * @param {Object} firebase - Internal firebase object
+ */
+const getUserProfilesPath = (firebase, authUid) => {
+  const { userProfile } = firebase._.config
+  return typeof userProfile === 'function' ? userProfile(authUid) : userProfile
 }
 
 /**
@@ -389,7 +399,7 @@ export const init = (dispatch, firebase) => {
     }
 
     firebase._.authUid = authData.uid
-    watchUserProfile(dispatch, firebase)
+    watchUserProfile(dispatch, firebase, authData)
 
     dispatchLogin(dispatch, authData)
   })
@@ -399,18 +409,21 @@ export const init = (dispatch, firebase) => {
 }
 
 export const createUserProfile = (dispatch, firebase, userData, profile) => {
-  // Check for user's profile at userProfile path if provided
-  if (!firebase._.config.userProfile) {
+  const userProfilesPath = getUserProfilesPath(firebase, userData.uid)
+  // Check for user profiles path is provided
+  if (userProfilesPath) {
     return Promise.resolve(userData)
   }
   return firebase.database()
     .ref()
-    .child(`${firebase._.config.userProfile}/${userData.uid}`)
+    .child(`${userProfilesPath}/${userData.uid}`)
     .once('value')
     .then(profileSnap => {
       // Return Profile if it exists
       if (profileSnap && profileSnap.val && profileSnap.val() !== null) {
-        return profileSnap.val()
+        return {
+          ...profileSnap.val()
+        }
       }
       // TODO: Update profile if different then existing
       // Set profile if one does not already exist
