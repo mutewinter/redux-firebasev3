@@ -325,7 +325,7 @@ var unWatchUserProfile = function unWatchUserProfile(firebase) {
  */
 var watchUserProfile = function watchUserProfile(dispatch, firebase, authData) {
   var authUid = firebase._.authUid;
-  var userProfilesPath = getUserProfilesPath(firebase);
+  var userProfilesPath = getUserProfilesPath(firebase, authUid);
 
   unWatchUserProfile(firebase);
   if (userProfilesPath) {
