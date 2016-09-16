@@ -318,7 +318,7 @@ const unWatchUserProfile = (firebase) => {
  */
 const watchUserProfile = (dispatch, firebase, authData) => {
   const authUid = firebase._.authUid
-  const userProfilesPath = getUserProfilesPath(firebase)
+  const userProfilesPath = getUserProfilesPath(firebase, authUid)
 
   unWatchUserProfile(firebase)
   if (userProfilesPath) {
