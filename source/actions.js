@@ -411,7 +411,7 @@ export const init = (dispatch, firebase) => {
 export const createUserProfile = (dispatch, firebase, userData, profile) => {
   const userProfilesPath = getUserProfilesPath(firebase, userData.uid)
   // Check for user profiles path is provided
-  if (userProfilesPath) {
+  if (!userProfilesPath) {
     return Promise.resolve(userData)
   }
   return firebase.database()
