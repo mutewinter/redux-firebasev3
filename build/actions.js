@@ -427,7 +427,7 @@ var createUserProfile = exports.createUserProfile = function createUserProfile(d
   }
   return firebase.database().ref().child(userProfilesPath + '/' + userData.uid).once('value').then(function (profileSnap) {
     return profileSnap.ref.update(profile).then(function () {
-      return userData.uid;
+      return profile;
     }).catch(function (err) {
       // Error setting profile
       dispatchUnauthorizedError(dispatch, err);
