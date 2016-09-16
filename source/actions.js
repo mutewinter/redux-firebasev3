@@ -420,7 +420,7 @@ export const createUserProfile = (dispatch, firebase, userData, profile) => {
     .once('value')
     .then(profileSnap => {
       return profileSnap.ref.update(profile)
-        .then(() => userData.uid)
+        .then(() => profile)
         .catch(err => {
           // Error setting profile
           dispatchUnauthorizedError(dispatch, err)
