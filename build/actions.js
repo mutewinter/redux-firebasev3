@@ -422,7 +422,7 @@ var init = exports.init = function init(dispatch, firebase) {
 var createUserProfile = exports.createUserProfile = function createUserProfile(dispatch, firebase, userData, profile) {
   var userProfilesPath = getUserProfilesPath(firebase, userData.uid);
   // Check for user profiles path is provided
-  if (userProfilesPath) {
+  if (!userProfilesPath) {
     return _es6Promise.Promise.resolve(userData);
   }
   return firebase.database().ref().child(userProfilesPath + '/' + userData.uid).once('value').then(function (profileSnap) {
