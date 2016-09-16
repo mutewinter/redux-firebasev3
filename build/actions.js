@@ -5,8 +5,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.resetPassword = exports.createUser = exports.logout = exports.login = exports.createUserProfile = exports.init = exports.unWatchEvents = exports.watchEvents = exports.unWatchEvent = exports.watchEvent = undefined;
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 var _constants = require('./constants');
 
 var _es6Promise = require('es6-promise');
@@ -428,13 +426,7 @@ var createUserProfile = exports.createUserProfile = function createUserProfile(d
     return _es6Promise.Promise.resolve(userData);
   }
   return firebase.database().ref().child(userProfilesPath + '/' + userData.uid).once('value').then(function (profileSnap) {
-    // Return Profile if it exists
-    if (profileSnap && profileSnap.val && profileSnap.val() !== null) {
-      return _extends({}, profileSnap.val());
-    }
-    // TODO: Update profile if different then existing
-    // Set profile if one does not already exist
-    return profileSnap.ref.set(profile).then(function () {
+    return profileSnap.ref.update(profile).then(function () {
       return userData.uid;
     }).catch(function (err) {
       // Error setting profile
