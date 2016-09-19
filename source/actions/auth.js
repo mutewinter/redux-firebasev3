@@ -86,9 +86,9 @@ export const init = (dispatch, firebase) => {
  */
 const unWatchUserProfile = (firebase) => {
   const authUid = firebase._.authUid
-  const userProfile = firebase._.config.userProfile
+  const userProfilesPath = getUserProfilesPath(firebase, authUid)
   if (firebase._.profileWatch) {
-    firebase.database().ref().child(`${userProfile}/${authUid}`).off('value', firebase._.profileWatch)
+    firebase.database().ref().child(`${userProfilesPath}/${authUid}`).off('value', firebase._.profileWatch)
     firebase._.profileWatch = null
   }
 }
@@ -100,12 +100,12 @@ const unWatchUserProfile = (firebase) => {
  */
 const watchUserProfile = (dispatch, firebase) => {
   const authUid = firebase._.authUid
-  const userProfile = firebase._.config.userProfile
+  const userProfilesPath = getUserProfilesPath(firebase, authUid)
   unWatchUserProfile(firebase)
-  if (firebase._.config.userProfile) {
+  if (userProfilesPath) {
     firebase._.profileWatch = firebase.database()
       .ref()
-      .child(`${userProfile}/${authUid}`)
+      .child(`${userProfilesPath}/${authUid}`)
       .on('value', snap => {
         dispatch({
           type: SET_PROFILE,
@@ -113,6 +113,15 @@ const watchUserProfile = (dispatch, firebase) => {
         })
       })
   }
+}
+
+/**
+ * @description Get the path to the user profiles.
+ * @param {Object} firebase - Internal firebase object
+ */
+const getUserProfilesPath = (firebase, authUid) => {
+  const { userProfile } = firebase._.config
+  return typeof userProfile === 'function' ? userProfile(authUid) : userProfile
 }
 
 /**
@@ -158,13 +167,14 @@ const getLoginMethodAndParams = ({email, password, provider, type, token}, fireb
 }
 
 export const createUserProfile = (dispatch, firebase, userData, profile) => {
+  const userProfilesPath = getUserProfilesPath(firebase, userData.uid)
   // Check for user's profile at userProfile path if provided
-  if (!firebase._.config.userProfile) {
+  if (!userProfilesPath) {
     return Promise.resolve(userData)
   }
   return firebase.database()
     .ref()
-    .child(`${firebase._.config.userProfile}/${userData.uid}`)
+    .child(`${userProfilesPath}/${userData.uid}`)
     .once('value')
     .then(profileSnap => {
       // Return Profile if it exists
@@ -174,7 +184,7 @@ export const createUserProfile = (dispatch, firebase, userData, profile) => {
       // TODO: Update profile if different then existing
       // Set profile if one does not already exist
       return profileSnap.ref.set(profile)
-        .then(() => userData.uid)
+        .then(() => profile)
         .catch(err => {
           // Error setting profile
           dispatchUnauthorizedError(dispatch, err)
