@@ -86,9 +86,9 @@ var init = exports.init = function init(dispatch, firebase) {
  */
 var unWatchUserProfile = function unWatchUserProfile(firebase) {
   var authUid = firebase._.authUid;
-  var userProfilesPath = getUserProfilesPath(firebase, authUid);
+  var userProfilePath = getUserProfilePath(firebase, authUid);
   if (firebase._.profileWatch) {
-    firebase.database().ref().child(userProfilesPath + '/' + authUid).off('value', firebase._.profileWatch);
+    firebase.database().ref().child(userProfilePath).off('value', firebase._.profileWatch);
     firebase._.profileWatch = null;
   }
 };
@@ -100,10 +100,10 @@ var unWatchUserProfile = function unWatchUserProfile(firebase) {
  */
 var watchUserProfile = function watchUserProfile(dispatch, firebase) {
   var authUid = firebase._.authUid;
-  var userProfilesPath = getUserProfilesPath(firebase, authUid);
+  var userProfilePath = getUserProfilePath(firebase, authUid);
   unWatchUserProfile(firebase);
-  if (userProfilesPath) {
-    firebase._.profileWatch = firebase.database().ref().child(userProfilesPath + '/' + authUid).on('value', function (snap) {
+  if (userProfilePath) {
+    firebase._.profileWatch = firebase.database().ref().child(userProfilePath).on('value', function (snap) {
       dispatch({
         type: _constants.SET_PROFILE,
         profile: snap.val()
@@ -116,10 +116,13 @@ var watchUserProfile = function watchUserProfile(dispatch, firebase) {
  * @description Get the path to the user profiles.
  * @param {Object} firebase - Internal firebase object
  */
-var getUserProfilesPath = function getUserProfilesPath(firebase, authUid) {
+var getUserProfilePath = function getUserProfilePath(firebase, authUid) {
   var userProfile = firebase._.config.userProfile;
 
-  return typeof userProfile === 'function' ? userProfile(authUid) : userProfile;
+  if (typeof userProfile === 'function') {
+    return userProfile(authUid);
+  }
+  return userProfile + '/' + authUid;
 };
 
 /**
@@ -171,12 +174,12 @@ var getLoginMethodAndParams = function getLoginMethodAndParams(_ref, firebase) {
 };
 
 var createUserProfile = exports.createUserProfile = function createUserProfile(dispatch, firebase, userData, profile) {
-  var userProfilesPath = getUserProfilesPath(firebase, userData.uid);
+  var userProfilePath = getUserProfilePath(firebase, userData.uid);
   // Check for user's profile at userProfile path if provided
-  if (!userProfilesPath) {
+  if (!userProfilePath) {
     return _es6Promise.Promise.resolve(userData);
   }
-  return firebase.database().ref().child(userProfilesPath + '/' + userData.uid).once('value').then(function (profileSnap) {
+  return firebase.database().ref().child(userProfilePath).once('value').then(function (profileSnap) {
     // Update the profile
     return profileSnap.ref.update(profile).then(function () {
       return profile;

@@ -86,9 +86,9 @@ export const init = (dispatch, firebase) => {
  */
 const unWatchUserProfile = (firebase) => {
   const authUid = firebase._.authUid
-  const userProfilesPath = getUserProfilesPath(firebase, authUid)
+  const userProfilePath = getUserProfilePath(firebase, authUid)
   if (firebase._.profileWatch) {
-    firebase.database().ref().child(`${userProfilesPath}/${authUid}`).off('value', firebase._.profileWatch)
+    firebase.database().ref().child(userProfilePath).off('value', firebase._.profileWatch)
     firebase._.profileWatch = null
   }
 }
@@ -100,12 +100,12 @@ const unWatchUserProfile = (firebase) => {
  */
 const watchUserProfile = (dispatch, firebase) => {
   const authUid = firebase._.authUid
-  const userProfilesPath = getUserProfilesPath(firebase, authUid)
+  const userProfilePath = getUserProfilePath(firebase, authUid)
   unWatchUserProfile(firebase)
-  if (userProfilesPath) {
+  if (userProfilePath) {
     firebase._.profileWatch = firebase.database()
       .ref()
-      .child(`${userProfilesPath}/${authUid}`)
+      .child(userProfilePath)
       .on('value', snap => {
         dispatch({
           type: SET_PROFILE,
@@ -119,9 +119,12 @@ const watchUserProfile = (dispatch, firebase) => {
  * @description Get the path to the user profiles.
  * @param {Object} firebase - Internal firebase object
  */
-const getUserProfilesPath = (firebase, authUid) => {
+const getUserProfilePath = (firebase, authUid) => {
   const { userProfile } = firebase._.config
-  return typeof userProfile === 'function' ? userProfile(authUid) : userProfile
+  if (typeof userProfile === 'function') {
+    return userProfile(authUid)
+  }
+  return `${userProfile}/${authUid}`
 }
 
 /**
@@ -167,14 +170,14 @@ const getLoginMethodAndParams = ({email, password, provider, type, token}, fireb
 }
 
 export const createUserProfile = (dispatch, firebase, userData, profile) => {
-  const userProfilesPath = getUserProfilesPath(firebase, userData.uid)
+  const userProfilePath = getUserProfilePath(firebase, userData.uid)
   // Check for user's profile at userProfile path if provided
-  if (!userProfilesPath) {
+  if (!userProfilePath) {
     return Promise.resolve(userData)
   }
   return firebase.database()
     .ref()
-    .child(`${userProfilesPath}/${userData.uid}`)
+    .child(userProfilePath)
     .once('value')
     .then(profileSnap => {
       // Update the profile
