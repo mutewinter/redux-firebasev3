@@ -219,7 +219,7 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
       dispatch({
         type: _constants.SET,
         path: p + '#error',
-        data: error
+        data: error.toString()
       });
     });
   };

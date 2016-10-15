@@ -214,7 +214,7 @@ export const watchEvent = (firebase, dispatch, event, path, dest, onlyLastEvent 
       dispatch({
         type: SET,
         path: `${p}#error`,
-        data: error
+        data: error.toString()
       })
     })
   }
