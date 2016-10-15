@@ -218,8 +218,8 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
     }, function (error) {
       dispatch({
         type: _constants.SET,
-        path: p,
-        data: { firebaseError: error }
+        path: p + '#error',
+        data: error
       });
     });
   };
