@@ -215,6 +215,12 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
         data: data,
         snapshot: snapshot
       });
+    }, function (error) {
+      dispatch({
+        type: _constants.SET,
+        path: p,
+        data: error
+      });
     });
   };
 
