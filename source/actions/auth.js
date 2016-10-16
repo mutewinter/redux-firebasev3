@@ -254,12 +254,14 @@ export const login = (dispatch, firebase, credentials) => {
  * @description Logout of firebase and dispatch logout event
  * @param {Function} dispatch - Action dispatch function
  * @param {Object} firebase - Internal firebase object
+ * @return {Promise}
  */
 export const logout = (dispatch, firebase) => {
-  firebase.auth().signOut()
+  const promise = firebase.auth().signOut()
   dispatch({ type: LOGOUT })
   firebase._.authUid = null
   unWatchUserProfile(firebase)
+  return promise
 }
 
 /**
