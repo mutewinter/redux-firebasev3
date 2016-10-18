@@ -258,9 +258,13 @@ export const login = (dispatch, firebase, credentials) => {
  */
 export const logout = (dispatch, firebase) => {
   const promise = firebase.auth().signOut()
-  dispatch({ type: LOGOUT })
-  firebase._.authUid = null
-  unWatchUserProfile(firebase)
+  try {
+    dispatch({ type: LOGOUT })
+    unWatchUserProfile(firebase)
+    firebase._.authUid = null
+  } catch (error) {
+    console.error('Error logging out', error)
+  }
   return promise
 }
 
